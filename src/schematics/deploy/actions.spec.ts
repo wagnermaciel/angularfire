@@ -30,7 +30,7 @@ describe('Deploy Angular apps', () => {
     expect(spyLogin).toHaveBeenCalled();
   });
 
-  it('should invoke the builder', async () => {
+  it('should invoke the default builder when no buildTarget is provided', async () => {
     const spy = spyOn(context, 'scheduleTarget').and.callThrough();
     await deploy(firebaseMock, context, 'host', FIREBASE_PROJECT);
     expect(spy).toHaveBeenCalled();
@@ -39,6 +39,14 @@ describe('Deploy Angular apps', () => {
       configuration: 'production',
       project: PROJECT
     });
+  });
+
+  it('should allow the buildTarget to be specified', async () => {
+    const buildTarget = { target: 'prerender', project: PROJECT };
+    const spy = spyOn(context, 'scheduleTarget').and.callThrough();
+    await deploy(firebaseMock, context, 'host', FIREBASE_PROJECT, buildTarget);
+    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith(buildTarget);
   });
 
   it('should invoke firebase.deploy', async () => {
