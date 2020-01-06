@@ -1,17 +1,19 @@
 import {
   BuilderContext,
   BuilderOutput,
-  createBuilder
+  createBuilder,
+  targetFromTargetString
 } from "@angular-devkit/architect";
 import { NodeJsSyncHost } from "@angular-devkit/core/node";
 import deploy from "./actions";
 import { experimental, join, normalize } from "@angular-devkit/core";
+import { DeployBuilderOptions } from '../interfaces';
 import { getFirebaseProjectName } from "../utils";
 
 // Call the createBuilder() function to create a builder. This mirrors
 // createJobHandler() but add typings specific to Architect Builders.
 export default createBuilder<any>(
-  async (_: any, context: BuilderContext): Promise<BuilderOutput> => {
+  async (options: DeployBuilderOptions, context: BuilderContext): Promise<BuilderOutput> => {
     // The project root is added to a BuilderContext.
     const root = normalize(context.workspaceRoot);
     const workspace = new experimental.workspace.Workspace(
@@ -38,7 +40,8 @@ export default createBuilder<any>(
         require("firebase-tools"),
         context,
         join(workspace.root, project.root),
-        firebaseProject
+        firebaseProject,
+        options.buildTarget ? targetFromTargetString(options.buildTarget) : undefined,
       );
     } catch (e) {
       console.error("Error when trying to deploy: ");
